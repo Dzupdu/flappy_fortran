@@ -27,64 +27,60 @@ contains
     subroutine render_char_array(arr)
         character(len=1), dimension(:,:), intent(in) :: arr
         integer :: i, j
-        do i=1, size(arr, 1)
-            do j=1, size(arr, 2)
-                write(*, fmt="(A)", advance='no') arr(i, j)
+        do i=1, size(arr, 2)
+            do j=1, size(arr, 1)
+                write(*, fmt="(A)", advance='no') arr(j, i)
             end do
             write(*,*)
         end do
         write(*,*)
     end subroutine render_char_array
 
+
+
     subroutine draw(self)
         class(Gamestate), intent(in) :: self
-        character(len=FLAPPY_WIDTH), dimension(FLAPPY_HEIGHT) :: flappy_str
+        character(len=1), dimension(FLAPPY_WIDTH, FLAPPY_HEIGHT) :: flappy_str
+        character(len=1), dimension(RESOLUTION(1), RESOLUTION(2)) :: canvas
         integer :: self_pos, i, j
-        flappy_str = (/ '..........@@@@@@@@@@.......', &
-                        '.......@@-.....@....@......', &
-                        '.....@.......@........@....', &
-                        '...@@......:.@......@..@...', &
-                        '..@.....:....@......@..@...', &
-                        '..@@@@@@@::....@.......@...', &
-                        '@.........@.....-@@@@@@@@@.', &
-                        '@.........@:..:@==========@', &
-                        '..@@@@@@@@...@===@@@@@@@@@.', &
-                        '....@:..:.::.::@=========@.', &
-                        '.....@@@:..:..::-@@@@@@@@..', &
-                        '........@@@@@@@@@..........'/)
+
+        flappy_str = reshape((/ '.','.','.','.','.','.','.','.','.','.', &
+                                '@','@','@','@','@','@','@','@','@','@','.','.','.','.','.','.','.', &
+                                '.','.','.','.','.','.','.','@','@','.', &
+                                '.','.','.','.','.','@','.','.','.','.','@','.','.','.','.','.','.', &
+                                '.','.','.','.','.','@','.','.','.','.', &
+                                '.','.','.','@','.','.','.','.','.','.','.','.','@','.','.','.','.', &
+                                '.','.','.','@','@','.','.','.','.','.', &
+                                '.','.','.','@','.','.','.','.','.','.','@','.','.','@','.','.','.', &
+                                '.','.','@','.','.','.','.','.','.','.', &
+                                '.','.','.','@','.','.','.','.','.','.','@','.','.','@','.','.','.', &
+                                '.','@','@','@','@','@','@','@','@','@', &
+                                '.','.','.','.','.','@','.','.','.','.','.','.','.','@','.','.','.', &
+                                '@','.','.','.','.','.','.','.','.','.', &
+                                '@','.','.','.','.','.','.','@','@','@','@','@','@','@','@','@','.', &
+                                '@','.','.','.','.','.','.','.','.','.', &
+                                '@','.','.','.','.','@','=','=','=','=','=','=','=','=','=','=','@', &
+                                '.','@','@','@','@','@','@','@','@','@', &
+                                '.','.','.','@','=','=','=','@','@','@','@','@','@','@','@','@','.', &
+                                '.','.','.','.','@','.','.','.','.','.', &
+                                '.','.','.','.','.','@','=','=','=','=','=','=','=','=','=','@','.', &
+                                '.','.','.','.','.','@','@','@','.','.', &
+                                '.','.','.','.','.','.','.','@','@','@','@','@','@','@','@','.','.', &
+                                '.','.','.','.','.','.','.','.','@','@', &
+                                '@','@','@','@','@','@','@','.','.','.','.','.','.','.','.','.','.'/), &
+                        shape(flappy_str), order=(/1,2/) )
+        ! Initialize whole array to dots
+        canvas = '.' 
+        ! Top and bottom borders
+        canvas(:, 1) = '/' 
+        canvas(:, RESOLUTION(2)) = '/' 
 
         self_pos = nint(self % y_position)
         call system("clear")
-        !print *, "¤[H¤[2J¤[3J"
-        call draw_boundary()
-        do i = 2, RESOLUTION(2) - 1
-            write(*, '(a)', advance='no') '.'
-
-            if (i >=  self_pos .and. i < (self_pos + FLAPPY_HEIGHT)) then
-                write(*, '(a)', advance='no')  flappy_str(i - self_pos + 1)
-            else
-                do j = 2, FLAPPY_WIDTH + 1
-                    write(*, '(a)', advance='no') '.'
-                end do
-            end if
-    
-            do j = FLAPPY_WIDTH + 1, RESOLUTION(1) - 1
-                write(*, '(a)', advance='no') '.'
-            end do
-
-            write(*,'(a)') '~'
-        end do       
-        call draw_boundary()
+        canvas(1:FLAPPY_WIDTH, self_pos: self_pos + FLAPPY_HEIGHT - 1) = flappy_str
+        call render_char_array(canvas)
 
     end subroutine draw
-
-    subroutine draw_boundary()
-        integer :: i
-        do i = 1, RESOLUTION(1) - 1
-            write(*,'(a)', advance='no') '/'
-        end do
-        write(*,'(a)') '/'
-    end subroutine draw_boundary
 
     subroutine progress(self)
         class(Gamestate), intent(in out) :: self
