@@ -35,25 +35,16 @@ program flappy_fortran
     ! real :: x_pixels_per_s = 20
 
     game = init_gamestate()
-    !print *, nint(1e6/target_fps)
 
     do while (game % is_alive())
-        ! print * , "from: ", game % y_position, game % y_velocity
-        call  game % progress()
-        ! print * , "to ", game % y_position, game % y_velocity
         call game % draw()
 
         key = c_get_key()
         if (key /= 0) then
-            ! print * , "addding speeed"
-            ! print * , "from: ", game % y_velocity
             game % y_velocity = game % y_velocity - 10.0
-            ! print * , "To ", game % y_velocity
         end if
-         !call fgetc(fd, c, rc)
-         !call fput(c)
-        ! Call sleep(1/target_fps)
-        ! print *, RESOLUTION(1), RESOLUTION(2)
+    
+        call  game % progress()
         rc = c_usleep(nint(1e6/target_fps))
     end do
 
