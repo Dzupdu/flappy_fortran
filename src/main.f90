@@ -28,25 +28,23 @@ program flappy_fortran
     implicit none
 
     type(Gamestate) :: game
-    real, parameter :: target_fps = 10
+    real, parameter :: target_fps = 20
     integer :: rc, fd = 5
     character :: c
     integer(c_int) :: key
     ! real :: x_pixels_per_s = 20
-
     game = init_gamestate()
 
-    do while (game % is_alive())
+    do while (game % is_alive)
         call game % draw()
 
         key = c_get_key()
         if (key /= 0) then
-            game % y_velocity = game % y_velocity - 10.0
+            game % y_velocity = game % y_velocity - JUMP_SPEED
         end if
     
         call  game % progress()
         rc = c_usleep(nint(1e6/target_fps))
     end do
 
-    ! READ *, 
 end program flappy_fortran
